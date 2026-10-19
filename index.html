@@ -2,9 +2,9 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- 시스템 버전: v2.47 (사이드바 너비 드래그 조절 기능 추가 & '삼식이 자동산정' 문구 수정) -->
-  <title>전사 연차·대체휴무 통합 관리 시스템 v2.47</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- 시스템 버전: v2.48 (모바일 반응형 레이아웃 및 폼 최적화 적용) -->
+  <title>전사 연차·대체휴무 통합 관리 시스템 v2.48</title>
   <!-- React & ReactDOM CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -24,7 +24,7 @@
     
     .app-layout { display: flex; min-height: 100vh; width: 100%; overflow-x: hidden; }
     
-    /* 사이드바 크기 조절 가능하도록 설정 */
+    /* PC 기본 사이드바 */
     .sidebar { 
       background: #2c3e50; 
       color: #fff; 
@@ -60,16 +60,24 @@
     .nav-btn.active { background: #18bc9c; color: #fff; }
     .sidebar-footer { border-top: 1px solid #34495e; padding-top: 15px; }
 
-    .main-content { flex: 1; padding: 20px; overflow-x: auto; min-width: 0; }
+    .main-content { flex: 1; padding: 20px; overflow-x: auto; min-width: 0; width: 100%; }
     .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 13px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
     .btn { background: #3498db; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     .btn-danger { background: #e74c3c; }
     .btn-success { background: #2ecc71; }
     .btn-excel { background: #27ae60; color: white; float: right; margin-bottom: 10px; }
     
+    /* 연차 신청 입력 폼 기본 (PC형 그리드) */
+    .req-form-grid {
+      display: grid; 
+      grid-template-columns: 1.8fr 1fr 2fr 1fr; 
+      gap: 10px; 
+      margin-bottom: 25px;
+    }
+
     .emp-form-container { background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
     .emp-grid-row1 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 10px; }
     .emp-grid-row2 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.5fr 1fr; gap: 12px; }
@@ -89,7 +97,8 @@
     .emp-table th, .emp-table td { border: 1px solid #e2e8f0; padding: 10px 6px; text-align: center; vertical-align: middle; white-space: nowrap; }
     .emp-table th { background: #f8fafc; font-weight: 600; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+    .table-responsive { overflow-x: auto; width: 100%; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; min-width: 600px; }
     th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: center; }
     th { background: #f8fafc; font-weight: 600; }
     
@@ -106,11 +115,63 @@
     .watermark { text-align: right; font-size: 11px; color: #888; margin-top: 10px; }
     .login-box { max-width: 420px; margin: 80px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 460px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+    .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 480px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
     
     .filter-box-container { display: grid; grid-template-columns: 1.2fr 1fr 1.3fr 1.1fr 1.8fr 1fr 1fr; gap: 8px; background: #f1f5f9; padding: 12px; border-radius: 6px; margin-bottom: 12px; border: 1px solid #cbd5e1; align-items: flex-end; }
     .filter-box-container input, .filter-box-container select { padding: 6px 8px; font-size: 12px; width: 100%; border: 1px solid #ccc; border-radius: 4px; background: #fff; }
+
+    /* ==========================================================
+       📱 모바일 화면 전용 최적화 스타일 (가로 768px 이하)
+       ========================================================== */
+    @media screen and (max-width: 768px) {
+      .app-layout { flex-direction: column; }
+      
+      .sidebar { 
+        width: 100% !important; 
+        padding: 12px 15px; 
+        border-bottom: 2px solid #34495e; 
+      }
+      .sidebar-resizer { display: none; } /* 모바일에서는 너비 조절바 숨김 */
+      .sidebar-brand { margin-bottom: 10px; padding-bottom: 8px; font-size: 15px; }
+      .sidebar-user { margin-bottom: 10px; padding: 8px 10px; }
+      .nav-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; }
+      .nav-btn { padding: 8px 10px; font-size: 12px; justify-content: center; text-align: center; }
+      .sidebar-footer { border-top: none; padding-top: 8px; }
+
+      .main-content { padding: 10px; }
+      .card { padding: 15px; }
+
+      /* 모바일 신청 폼 1열(세로) 변환 */
+      .req-form-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .req-form-grid input, .req-form-grid select, .req-form-grid button {
+        width: 100%;
+        height: 42px;
+      }
+
+      .emp-grid-row1, .emp-grid-row2 {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .filter-box-container {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .comp-form-container {
+        grid-template-columns: 1fr !important;
+      }
+
+      .login-box {
+        margin: 20px auto;
+        padding: 20px;
+        width: 92%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -119,7 +180,7 @@
   <script type="text/babel">
     /* ==========================================================
        프로그램명: 전사 연차·대체휴무 통합 관리 시스템
-       버전: v2.47 (사이드바 너비 드래그 조절 기능 추가 & '삼식이 자동산정' 문구 수정)
+       버전: v2.48 (모바일 반응형 레이아웃 및 폼 최적화 적용)
        작성자: 삼식이(제미나이) & 거북형님
        ========================================================== */
 
@@ -218,7 +279,7 @@
       const [newHireDate, setNewHireDate] = React.useState("");
       const [newLeaveCount, setNewLeaveCount] = React.useState(15);
 
-      // 사이드바 가로 너비 조절용 State
+      // 사이드바 가로 너비 조절용 State (PC 전용)
       const [sidebarWidth, setSidebarWidth] = React.useState(240);
       const [isResizing, setIsResizing] = React.useState(false);
 
@@ -1110,7 +1171,7 @@
         return (
           <div className="login-box">
             <h2 style={{ textAlign: 'center', marginBottom: '5px' }}>근태 관리 시스템</h2>
-            <p style={{ textAlign: 'center', color: '#666', fontSize: '12px', marginBottom: '20px' }}>MADE BY 삼식이(제미나이) - v2.47</p>
+            <p style={{ textAlign: 'center', color: '#666', fontSize: '12px', marginBottom: '20px' }}>MADE BY 삼식이(제미나이) - v2.48</p>
             
             {!isAdminLoginMode ? (
               <form onSubmit={handleEmployeeLogin}>
@@ -1158,7 +1219,7 @@
 
             <div>
               <div className="sidebar-brand">
-                <span>📅 근태관리 v2.47</span>
+                <span>📅 근태관리 v2.48</span>
               </div>
               <div className="sidebar-user">
                 <div><b>{currentUser.title || ''} {currentUser.name}</b></div>
@@ -1199,9 +1260,9 @@
             <div className="card">
               {currentTab === 'matrix' && (
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                      <h3>📊 {selectedYear}년 {selectedMonth}월 연차 및 대체휴무 현황</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <h3 style={{ margin: 0, fontSize: '16px' }}>📊 {selectedYear}년 {selectedMonth}월 연차 및 대체휴무 현황</h3>
                       <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
                         {[2024, 2025, 2026, 2027, 2028].map(y => <option key={y} value={y}>{y}년</option>)}
                       </select>
@@ -1209,7 +1270,7 @@
                         {Array.from({ length: 12 }, (_, i) => i + 1).map(m => <option key={m} value={m}>{m}월</option>)}
                       </select>
                     </div>
-                    <button className="btn btn-excel" onClick={exportToExcel}>
+                    <button className="btn btn-excel" onClick={exportToExcel} style={{ marginBottom: 0 }}>
                       📥 엑셀 내보내기
                     </button>
                   </div>
@@ -1294,12 +1355,15 @@
                   <div>
                     <h3>📌 연차 신청 및 결재 내역</h3>
                     {!isAdmin && (
-                      <div style={{ background: '#e8f4fd', padding: '10px 15px', borderRadius: '6px', marginBottom: '15px' }}>
-                        <strong>💡 내 {selectedYear}년 연차 현황:</strong> 기본연차: <b>{myBase}일</b> | 이월: <b>{myCarry}일</b> | 추가: <b>{myExtra}일</b> | 총 연차: <b>{myTotal}일</b> | 실제 사용: <b>{myUsed}일</b> | <b>잔여 연차: <span style={{ color: '#27ae60' }}>{myRemain}일</span></b>
+                      <div style={{ background: '#e8f4fd', padding: '10px 12px', borderRadius: '6px', marginBottom: '15px', fontSize: '12px', lineHeight: '1.6' }}>
+                        <strong>💡 내 {selectedYear}년 연차 현황:</strong><br />
+                        기본연차: <b>{myBase}일</b> | 이월: <b>{myCarry}일</b> | 추가: <b>{myExtra}일</b> | 총 연차: <b>{myTotal}일</b><br />
+                        실제 사용: <b>{myUsed}일</b> | <b>잔여 연차: <span style={{ color: '#27ae60' }}>{myRemain}일</span></b>
                       </div>
                     )}
 
-                    <form onSubmit={handleAddAnnualRequest} style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 2fr 1fr', gap: '10px', marginBottom: '25px' }}>
+                    {/* 반응형 폼 클래스 적용 (req-form-grid) */}
+                    <form onSubmit={handleAddAnnualRequest} className="req-form-grid">
                       <select name="type" required>
                         <option value="연차">연차 (1일 차감)</option>
                         <option value="반차">반차 (0.5일 차감)</option>
@@ -1316,50 +1380,52 @@
                     </form>
 
                     <h4>{isAdmin ? "전체 연차 신청 내역" : "나의 연차 신청 내역"}</h4>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>신청자</th>
-                          <th>구분</th>
-                          <th>차감일수</th>
-                          <th>날짜</th>
-                          <th>사유</th>
-                          <th>상태</th>
-                          {isAdmin && <th>결재 관리</th>}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {requests
-                          .filter(req => req.category === "연차" && (isAdmin || req.empId === currentUser.id))
-                          .map(req => (
-                            <tr key={req.id}>
-                              <td>{req.empName}</td>
-                              <td><b>{req.type}</b></td>
-                              <td>{req.usedDays}일</td>
-                              <td>{req.date}</td>
-                              <td>{req.reason}</td>
-                              <td>
-                                <span className={`badge ${req.status === '승인' ? 'bg-approved' : req.status === '반려' ? 'bg-rejected' : 'bg-pending'}`}>
-                                  {req.status}
-                                </span>
-                                {req.status === '반려' && req.rejectReason && (
-                                  <div className="reject-reason">🚨 반려사유: {req.rejectReason}</div>
-                                )}
-                              </td>
-                              {isAdmin && (
+                    <div className="table-responsive">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>신청자</th>
+                            <th>구분</th>
+                            <th>차감일수</th>
+                            <th>날짜</th>
+                            <th>사유</th>
+                            <th>상태</th>
+                            {isAdmin && <th>결재 관리</th>}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {requests
+                            .filter(req => req.category === "연차" && (isAdmin || req.empId === currentUser.id))
+                            .map(req => (
+                              <tr key={req.id}>
+                                <td>{req.empName}</td>
+                                <td><b>{req.type}</b></td>
+                                <td>{req.usedDays}일</td>
+                                <td>{req.date}</td>
+                                <td>{req.reason}</td>
                                 <td>
-                                  {req.status === '대기' && (
-                                    <>
-                                      <button className="btn btn-success" style={{ padding: '3px 8px', fontSize: '12px', marginRight: '5px' }} onClick={() => handleApprove(req)}>승인</button>
-                                      <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '12px' }} onClick={() => openRejectModal(req)}>반려</button>
-                                    </>
+                                  <span className={`badge ${req.status === '승인' ? 'bg-approved' : req.status === '반려' ? 'bg-rejected' : 'bg-pending'}`}>
+                                    {req.status}
+                                  </span>
+                                  {req.status === '반려' && req.rejectReason && (
+                                    <div className="reject-reason">🚨 반려사유: {req.rejectReason}</div>
                                   )}
                                 </td>
-                              )}
-                            </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                                {isAdmin && (
+                                  <td>
+                                    {req.status === '대기' && (
+                                      <>
+                                        <button className="btn btn-success" style={{ padding: '3px 8px', fontSize: '12px', marginRight: '5px' }} onClick={() => handleApprove(req)}>승인</button>
+                                        <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '12px' }} onClick={() => openRejectModal(req)}>반려</button>
+                                      </>
+                                    )}
+                                  </td>
+                                )}
+                              </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 );
               })()}
@@ -1371,21 +1437,18 @@
                     <h3>🔄 대체휴무 발생 및 사용 신청</h3>
 
                     {!isAdmin && (
-                      <div style={{ background: '#fff8e1', padding: '12px 18px', borderRadius: '6px', border: '1px solid #ffe082', marginBottom: '20px' }}>
-                        <strong style={{ color: '#d35400', fontSize: '14px' }}>💡 내 대체휴무 현황: </strong> 
-                        <span style={{ fontSize: '13px', marginLeft: '8px' }}>
-                          이월 대휴: <b>{myCompSum.compCarry}개</b> | 
-                          신청 승인 발생: <b>{myCompSum.totalGen}개</b> | 
-                          <b> 총 발생: <span style={{ color: '#e67e22' }}>{myCompSum.totalGenIncludeCarry}개</span></b> | 
-                          <b> 총 사용: <span style={{ color: '#2980b9' }}>{myCompSum.totalUse}개</span></b> | 
-                          <b> 잔여 대체휴무: <span style={{ color: '#27ae60', fontSize: '15px' }}>{myCompSum.remain}개</span></b>
-                        </span>
+                      <div style={{ background: '#fff8e1', padding: '10px 12px', borderRadius: '6px', border: '1px solid #ffe082', marginBottom: '20px', fontSize: '12px', lineHeight: '1.6' }}>
+                        <strong style={{ color: '#d35400' }}>💡 내 대체휴무 현황:</strong><br />
+                        이월: <b>{myCompSum.compCarry}개</b> | 승인 발생: <b>{myCompSum.totalGen}개</b><br />
+                        <b>총 발생: <span style={{ color: '#e67e22' }}>{myCompSum.totalGenIncludeCarry}개</span></b> | 
+                        <b>총 사용: <span style={{ color: '#2980b9' }}>{myCompSum.totalUse}개</span></b> | 
+                        <b>잔여: <span style={{ color: '#27ae60', fontSize: '14px' }}>{myCompSum.remain}개</span></b>
                       </div>
                     )}
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px' }}>
+                    <div className="comp-form-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '25px' }}>
                       <div style={{ background: '#fff9c4', padding: '15px', borderRadius: '6px', border: '1px solid #fbc02d' }}>
-                        <h4 style={{ margin: '0 0 10px 0', color: '#d35400' }}>1️⃣ 대체휴무 발생 등록 (주말/공휴일 근무)</h4>
+                        <h4 style={{ margin: '0 0 10px 0', color: '#d35400', fontSize: '14px' }}>1️⃣ 대체휴무 발생 등록 (주말/공휴일 근무)</h4>
                         <form onSubmit={(e) => handleAddCompRequest(e, "발생")}>
                           <div className="form-group">
                             <label>근무일자 (주말/공휴일)</label>
@@ -1395,12 +1458,12 @@
                             <label>근무 사유 및 업무내용</label>
                             <input type="text" name="reason" placeholder="예: 비상근무, 현장지원 등" required />
                           </div>
-                          <button className="btn" style={{ background: '#e67e22', width: '100%' }} type="submit">대체휴무 발생 승인신청</button>
+                          <button className="btn" style={{ background: '#e67e22', width: '100%', height: '40px' }} type="submit">대체휴무 발생 승인신청</button>
                         </form>
                       </div>
 
                       <div style={{ background: '#e3f2fd', padding: '15px', borderRadius: '6px', border: '1px solid #64b5f6' }}>
-                        <h4 style={{ margin: '0 0 10px 0', color: '#1976d2' }}>2️⃣ 대체휴무 사용 결재 신청</h4>
+                        <h4 style={{ margin: '0 0 10px 0', color: '#1976d2', fontSize: '14px' }}>2️⃣ 대체휴무 사용 결재 신청</h4>
                         <form onSubmit={(e) => handleAddCompRequest(e, "사용")}>
                           <div className="form-group">
                             <label>휴무 사용일자</label>
@@ -1410,56 +1473,58 @@
                             <label>사용 사유</label>
                             <input type="text" name="reason" placeholder="예: 개인 사유 등" required />
                           </div>
-                          <button className="btn" style={{ background: '#2980b9', width: '100%' }} type="submit">대체휴무 사용 결재신청</button>
+                          <button className="btn" style={{ background: '#2980b9', width: '100%', height: '40px' }} type="submit">대체휴무 사용 결재신청</button>
                         </form>
                       </div>
                     </div>
 
                     <h4>{isAdmin ? "전체 대체휴무 내역" : "나의 대체휴무 내역"}</h4>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>신청자</th>
-                          <th>구분</th>
-                          <th>날짜</th>
-                          <th>사유</th>
-                          <th>상태</th>
-                          {isAdmin && <th>결재 관리</th>}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {requests
-                          .filter(req => req.category === "대체휴무" && (isAdmin || req.empId === currentUser.id))
-                          .map(req => (
-                            <tr key={req.id}>
-                              <td>{req.empName}</td>
-                              <td style={{ fontWeight: 'bold', color: req.type === '대체휴무발생' ? '#d35400' : '#1976d2' }}>
-                                {req.type === '대체휴무발생' ? '➕ 발생 (+1일)' : '➖ 사용 (-1일)'}
-                              </td>
-                              <td>{req.date}</td>
-                              <td>{req.reason}</td>
-                              <td>
-                                <span className={`badge ${req.status === '승인' ? 'bg-approved' : req.status === '반려' ? 'bg-rejected' : 'bg-pending'}`}>
-                                  {req.status}
-                                </span>
-                                {req.status === '반려' && req.rejectReason && (
-                                  <div className="reject-reason">🚨 반려사유: {req.rejectReason}</div>
-                                )}
-                              </td>
-                              {isAdmin && (
+                    <div className="table-responsive">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>신청자</th>
+                            <th>구분</th>
+                            <th>날짜</th>
+                            <th>사유</th>
+                            <th>상태</th>
+                            {isAdmin && <th>결재 관리</th>}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {requests
+                            .filter(req => req.category === "대체휴무" && (isAdmin || req.empId === currentUser.id))
+                            .map(req => (
+                              <tr key={req.id}>
+                                <td>{req.empName}</td>
+                                <td style={{ fontWeight: 'bold', color: req.type === '대체휴무발생' ? '#d35400' : '#1976d2' }}>
+                                  {req.type === '대체휴무발생' ? '➕ 발생 (+1일)' : '➖ 사용 (-1일)'}
+                                </td>
+                                <td>{req.date}</td>
+                                <td>{req.reason}</td>
                                 <td>
-                                  {req.status === '대기' && (
-                                    <>
-                                      <button className="btn btn-success" style={{ padding: '3px 8px', fontSize: '12px', marginRight: '5px' }} onClick={() => handleApprove(req)}>승인</button>
-                                      <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '12px' }} onClick={() => openRejectModal(req)}>반려</button>
-                                    </>
+                                  <span className={`badge ${req.status === '승인' ? 'bg-approved' : req.status === '반려' ? 'bg-rejected' : 'bg-pending'}`}>
+                                    {req.status}
+                                  </span>
+                                  {req.status === '반려' && req.rejectReason && (
+                                    <div className="reject-reason">🚨 반려사유: {req.rejectReason}</div>
                                   )}
                                 </td>
-                              )}
-                            </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                                {isAdmin && (
+                                  <td>
+                                    {req.status === '대기' && (
+                                      <>
+                                        <button className="btn btn-success" style={{ padding: '3px 8px', fontSize: '12px', marginRight: '5px' }} onClick={() => handleApprove(req)}>승인</button>
+                                        <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '12px' }} onClick={() => openRejectModal(req)}>반려</button>
+                                      </>
+                                    )}
+                                  </td>
+                                )}
+                              </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 );
               })()}
@@ -1469,7 +1534,7 @@
                   <h3>👥 회계년도 연차 부여 및 직원 비밀번호 관리</h3>
                   
                   <div style={{ background: '#eef2f7', padding: '15px', borderRadius: '6px', border: '1px solid #cbd5e1', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                       <h4 style={{ margin: 0, color: '#2c3e50' }}>📁 연차/대체휴무 기록 엑셀(.xlsx) 일괄 등록</h4>
                       <button className="btn" style={{ background: '#27ae60', fontSize: '12px', padding: '5px 12px' }} onClick={downloadExcelSample}>
                         📄 엑셀 등록양식 다운로드 (.xlsx)
@@ -1534,7 +1599,7 @@
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
-                      <button className="btn btn-success" type="submit" style={{ padding: '8px 25px' }}>직원 등록</button>
+                      <button className="btn btn-success" type="submit" style={{ padding: '8px 25px', width: '100%' }}>직원 등록</button>
                     </div>
                   </form>
 
@@ -1631,7 +1696,7 @@
                   </div>
 
                   <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '2px dashed #ccc' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '10px' }}>
                       <h3>📜 전사 연차 및 대체휴무 전체 관리자 통합 기록</h3>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button 
@@ -1732,64 +1797,66 @@
                       </div>
                     </form>
 
-                    <table>
-                      <thead>
-                        <tr>
-                          <th className="sortable" onClick={() => handleSort('empName')}>
-                            신청자 {sortConfig.key === 'empName' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
-                          </th>
-                          <th className="sortable" onClick={() => handleSort('category')}>
-                            구분 {sortConfig.key === 'category' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
-                          </th>
-                          <th className="sortable" onClick={() => handleSort('type')}>
-                            일수/유형 {sortConfig.key === 'type' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
-                          </th>
-                          <th className="sortable" onClick={() => handleSort('date')}>
-                            날짜 {sortConfig.key === 'date' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
-                          </th>
-                          <th className="sortable" onClick={() => handleSort('reason')}>
-                            사유 {sortConfig.key === 'reason' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
-                          </th>
-                          <th className="sortable" onClick={() => handleSort('status')}>
-                            상태 {sortConfig.key === 'status' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
-                          </th>
-                          <th>기록 관리</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {getProcessedRequests().length === 0 ? (
+                    <div className="table-responsive">
+                      <table>
+                        <thead>
                           <tr>
-                            <td colSpan="7" style={{ padding: '20px', color: '#999' }}>조회된 데이터가 없습니다.</td>
+                            <th className="sortable" onClick={() => handleSort('empName')}>
+                              신청자 {sortConfig.key === 'empName' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                            </th>
+                            <th className="sortable" onClick={() => handleSort('category')}>
+                              구분 {sortConfig.key === 'category' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                            </th>
+                            <th className="sortable" onClick={() => handleSort('type')}>
+                              일수/유형 {sortConfig.key === 'type' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                            </th>
+                            <th className="sortable" onClick={() => handleSort('date')}>
+                              날짜 {sortConfig.key === 'date' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                            </th>
+                            <th className="sortable" onClick={() => handleSort('reason')}>
+                              사유 {sortConfig.key === 'reason' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                            </th>
+                            <th className="sortable" onClick={() => handleSort('status')}>
+                              상태 {sortConfig.key === 'status' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                            </th>
+                            <th>기록 관리</th>
                           </tr>
-                        ) : (
-                          getProcessedRequests().map(r => (
-                            <tr key={r.id}>
-                              <td>{r.empName}</td>
-                              <td><span className="badge" style={{ background: r.category === '대체휴무' ? '#e67e22' : '#3498db' }}>{r.category || '연차'}</span></td>
-                              <td>{r.type} ({r.usedDays}일)</td>
-                              <td>{r.date}</td>
-                              <td>{r.reason}</td>
-                              <td>
-                                <span className={`badge ${r.status === '승인' ? 'bg-approved' : r.status === '반려' ? 'bg-rejected' : 'bg-pending'}`}>
-                                  {r.status}
-                                </span>
-                              </td>
-                              <td>
-                                <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', whiteSpace: 'nowrap' }}>
-                                  <button className="btn" style={{ padding: '4px 8px', fontSize: '11px' }} onClick={() => setEditingReq(r)}>✏️ 수정</button>
-                                  <button className="btn btn-danger" style={{ padding: '4px 8px', fontSize: '11px' }} onClick={() => handleDeleteRequest(r)}>🗑️ 삭제</button>
-                                </div>
-                              </td>
+                        </thead>
+                        <tbody>
+                          {getProcessedRequests().length === 0 ? (
+                            <tr>
+                              <td colSpan="7" style={{ padding: '20px', color: '#999' }}>조회된 데이터가 없습니다.</td>
                             </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
+                          ) : (
+                            getProcessedRequests().map(r => (
+                              <tr key={r.id}>
+                                <td>{r.empName}</td>
+                                <td><span className="badge" style={{ background: r.category === '대체휴무' ? '#e67e22' : '#3498db' }}>{r.category || '연차'}</span></td>
+                                <td>{r.type} ({r.usedDays}일)</td>
+                                <td>{r.date}</td>
+                                <td>{r.reason}</td>
+                                <td>
+                                  <span className={`badge ${r.status === '승인' ? 'bg-approved' : r.status === '반려' ? 'bg-rejected' : 'bg-pending'}`}>
+                                    {r.status}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', whiteSpace: 'nowrap' }}>
+                                    <button className="btn" style={{ padding: '4px 8px', fontSize: '11px' }} onClick={() => setEditingReq(r)}>✏️ 수정</button>
+                                    <button className="btn btn-danger" style={{ padding: '4px 8px', fontSize: '11px' }} onClick={() => handleDeleteRequest(r)}>🗑️ 삭제</button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
               
-              <div className="watermark">MADE BY 삼식이(제미나이) - v2.47</div>
+              <div className="watermark">MADE BY 삼식이(제미나이) - v2.48</div>
             </div>
           </div>
 
